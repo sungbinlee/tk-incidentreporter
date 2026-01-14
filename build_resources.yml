@@ -8,4 +8,4 @@
     - dialog
   res_files:
     - resources
-  py_dest: python/app/ui
+  py_dest: python/tk_incident/ui
