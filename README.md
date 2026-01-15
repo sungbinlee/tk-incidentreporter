@@ -1,86 +1,58 @@
-[![VFX Platform](https://img.shields.io/badge/vfxplatform-2025%20%7C%202024%20%7C%202023%20%7C%202022-blue.svg)](http://www.vfxplatform.com/)
-[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.10%20%7C%203.9-blue.svg)](https://www.python.org/)
-[![Build Status](https://dev.azure.com/shotgun-ecosystem/Toolkit/_apis/build/status/Apps/tk-multi-starterapp?branchName=master)](https://dev.azure.com/shotgun-ecosystem/Toolkit/_build/latest?definitionId=57&branchName=master)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Linting](https://img.shields.io/badge/PEP8%20by-Hound%20CI-a873d1.svg)](https://houndci.com)
+# tk-incidentreporter (MVP)
 
-# Welcome to the Flow Production Tracking Toolkit Starter App!
+FPTR Toolkit (`sgtk`) Desktop app that implements a simple idea:
 
-This app serves as a quick way to get started when doing Toolkit App development.
-If you want to get up and running quickly, follow these simple steps:
+> If something breaks on the client, detect it from `tk-*.log` and automatically file a Ticket to FPTR with the log attached.
 
-## Step 1. Fork this Repository!
+This is an MVP built to validate the end-to-end flow, not a production-ready app!
 
-First of all, fork this repo. You can fork it to your own github accout or fork it to
-an internal git server, that's totally up to you! At this time, make sure you also
-rename it to something sensible. We recommend the naming convention `tk-ENGINE-APPNAME`,
-where ENGINE is set to `multi` if the app can run in more than one engine. For example,
-if you are working on a rigging tool in maya, you may want to name it `tk-maya-characterposer`.
+## What it does
 
-## Step 2. Install your forked App in Toolkit
+- Watches `tk-*.log` on the client machine
+- Detects incident lines via regex: `ERROR|CRITICAL`
+- Creates a **Ticket** and attaches the log file
+- Prevents ticket flooding by **title signature de-dup**
+  - Title format: `"<user_login> - <ErrorName or short message>"`
+  - If the same title already exists → skip creation
 
-### Create a Dev Area
-Now, first things first - before starting development, let's install the App. First, create a
-development sandbox for your project by going to the pipeline configurations page in
-Flow Production Tracking and click select "Clone" on the menu when right clicking on the primary
-pipeline configuration. This will give you a private place to do development and you wont be
-disturbing the production.
+## Test it (SGTK config)
 
-### Install the new repository
-With your development sandbox there will be a specific tank command that you can use to address
-this particular configuration. Open a shell and navigate to your sandbox. Now run the install app
-command. When you install an app, you need to choose an environment and an engine. The engine is
-the application you will be running, so either `tk-maya`, `tk-nuke` etc. The environment is a
-collection of tools that you want to run against a specific work area. In our default
-configuration, when working with Shots, the environment is called `shot_step` and
-when working with Assets, the environment is called `asset_step`.
+### 1) Add app location
 
-```
-> cd /your/development/sandbox
-> ./tank install_app shot_step tk-maya user@remotehost:/path_to/tk-multi-mynewapp.git
-```
+Edit: `<your_config>/env/include/app_locations.yml`
 
-This will find the latest git tag and install that into your setup. If you want more information
-about how the install_app command works, just run it without any options.
+```yml
+# location descriptors for apps used in this configuration
+# --- Site apps
+apps.tk-incidentreporter.location:
+  type: dev
+  name: tk-incidentreporter
+  path: D:/<your_path>/tk-incidentreporter  # <yourpath>
+````
 
-Now, to test that the App was installed correctly, go to a Shot task in Flow Production Tracking
-and launch maya from your development sandbox. Toolkit now tracks this repository and if you create
-new tags, these will be detected by Toolkit's update system.
+### 2) Enable the app in tk-desktop site settings
 
-## Step 3. Set up your local environment
+Edit: `<your_config>/env/includes/settings/tk-desktop.yml`
 
-Now clone your forked repo locally, so that you have the code on disk somewhere. Next, we need
-to switch toolkit so that it doesn't track the latest tag in the git repo, but instead looks
-at your local code. For example, if you have your locally checked out code in `/Users/john.smith/dev/tk-multi-mynewapp`,
-you would do the following:
-
-```
-> cd /your/development/sandbox
-> ./tank switch_app shot_step tk-maya tk-multi-mynewapp /Users/john.smith/dev/tk-multi-mynewapp
+```yml
+# site
+settings.tk-desktop.site:
+  apps:
+    tk-incidentreporter:
+      location: "@apps.tk-incidentreporter.location"
+      shotgun_project_id: 190
+  location: "@engines.tk-desktop.location"
 ```
 
-## Step 4. Make changes!
+* `shotgun_project_id` is the **Project ID** where Tickets should be created(Should enable Ticket entity)
 
-Make changes to your code. Since you are now running tookit with a dev setup, there is a reload
-option on the menu. Clicking this will reload all apps and configuration, making it easy and
-quick to iterate.
+## What a Ticket contains
 
-## Step 5. Tag up a version and switch back to git mode
+* Matched line (trigger line)
+* Detected timestamp
+* Client User
+* Log path + matched byte offset
+* Attached log file (e.g. `tk-desktop.log`)
 
-When you are ready to release, tag up a version in git. Name it for example `v1.0.0`.
-Then, switch back to git mode. Toolkit will pick up the tag with the higest number
-and use that - your dev area is no longer used by the system.
-
-```
-> cd /your/development/sandbox
-> ./tank switch_app shot_step tk-maya tk-multi-mynewapp user@remotehost:/path_to/tk-multi-mynewapp.git
-```
-
-## Step 6. Push your config changes to the production config
-
-Lastly, push your configuration changes to the Primary production config for the project.
-
-```
-> cd /your/development/sandbox
-> ./tank push_configuration
-```
+## Contributing
+Any opinions or contributions are welcome!

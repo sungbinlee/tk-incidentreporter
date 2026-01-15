@@ -6,7 +6,7 @@ class ObservabilityStarterApp(Application):
     def init_app(self):
         # Collect configuration (Toolkit merges defaults + site/config)
         settings = {}
-        keys = ["snippet_before", "snippet_after", "shotgun_project_id", "ticket_entity_type"]
+        keys = ["shotgun_project_id", "ticket_entity_type"]
         for k in keys:
             try:
                 v = self.get_setting(k)

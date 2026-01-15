@@ -17,7 +17,6 @@ from .utils import get_default_log_folder
 class AgentController(QtCore.QObject):
     """
     AgentController with:
-    - improved signature extraction (exception class)
     - per-signature burst detection + blacklist
     - global throttling
     - async uploader via bounded queue + worker thread

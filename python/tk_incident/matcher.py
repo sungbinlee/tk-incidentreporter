@@ -3,7 +3,7 @@ import re
 
 class Matcher(object):
     """
-    Minimal matcher: detect ERROR/CRITICAL only.
+    detect ERROR/CRITICAL only.
     """
     def __init__(self, settings=None):
         self.settings = settings or {}

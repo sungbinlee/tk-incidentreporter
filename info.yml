@@ -12,14 +12,6 @@
 
 # expected fields in the configuration file for this engine
 configuration:
-  snippet_before:
-    type: int
-    default_value: 200
-    description: "Number of lines before matched line to include in snippet"
-  snippet_after:
-    type: int
-    default_value: 50
-    description: "Number of lines after matched line to include in snippet"
   shotgun_project_id:
     type: int
     default_value: 190
@@ -32,10 +24,6 @@ configuration:
     type: int
     default_value: 60
     description: "Per-error cooldown (seconds) to avoid duplicate uploads for same message"
-  max_uploads_per_minute:
-    type: int
-    default_value: 10
-    description: "Global maximum ticket uploads per 60 seconds per host"
 
 # this tk_incident works in all engines - it does not contain
 # any host application specific commands
