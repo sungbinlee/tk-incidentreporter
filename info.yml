@@ -12,8 +12,20 @@
 
 # expected fields in the configuration file for this engine
 configuration:
+  shotgun_project_id:
+    type: int
+    default_value: 190
+    description: "Default ShotGrid project id for created tickets"
+  ticket_entity_type:
+    type: str
+    default_value: "Ticket"
+    description: "Entity type to create (Ticket)"
+  cooldown_sec:
+    type: int
+    default_value: 60
+    description: "Per-error cooldown (seconds) to avoid duplicate uploads for same message"
 
-# this app works in all engines - it does not contain
+# this tk_incident works in all engines - it does not contain
 # any host application specific commands
 supported_engines:
 
@@ -21,13 +33,13 @@ supported_engines:
 requires_shotgun_fields:
 
 # More verbose description of this item
-display_name: "Flow Production Tracking Toolkit Starter"
-description: "Template App to quickly get up and running with the Flow Production Tracking Toolkit."
+display_name: "Flow Production Tracking Desktop Incident Reporter"
+description: "Site-level observability: tail tk-*.log and create Ticket in Flow Production Tracking"
 
 # Required minimum versions for this item to run
 requires_shotgun_version:
 requires_core_version: "v0.14.28"
 requires_engine_version:
 
-# the frameworks required to run this app
+# the frameworks required to run this tk_incident
 frameworks:

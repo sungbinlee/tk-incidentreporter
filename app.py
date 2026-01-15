@@ -1,41 +1,40 @@
-# Copyright (c) 2013 Shotgun Software Inc.
-#
-# CONFIDENTIAL AND PROPRIETARY
-#
-# This work is provided "AS IS" and subject to the Shotgun Pipeline Toolkit
-# Source Code License included in this distribution package. See LICENSE.
-# By accessing, using, copying or modifying this work you indicate your
-# agreement to the Shotgun Pipeline Toolkit Source Code License. All rights
-# not expressly granted therein are reserved by Shotgun Software Inc.
-
-
+import os
 from sgtk.platform import Application
 
 
-class SgtkStarterApp(Application):
-    """
-    The app entry point. This class is responsible for initializing and tearing down
-    the application, handle menu registration etc.
-    """
-
+class ObservabilityStarterApp(Application):
     def init_app(self):
-        """
-        Called as the application is being initialized
-        """
+        # Collect configuration (Toolkit merges defaults + site/config)
+        settings = {}
+        keys = ["shotgun_project_id", "ticket_entity_type"]
+        for k in keys:
+            try:
+                v = self.get_setting(k)
+            except Exception as e:
+                v = None
+                self.logger.debug(f"error : {e}")
+            if v is not None and v != "":
+                if k in ("shotgun_project_id", "ticket_entity_type"):
+                    settings.setdefault("upload", {})[k] = v
+                else:
+                    settings[k] = v
 
-        # first, we use the special import_module command to access the app module
-        # that resides inside the python folder in the app. This is where the actual UI
-        # and business logic of the app is kept. By using the import_module command,
-        # toolkit's code reload mechanism will work properly.
-        app_payload = self.import_module("app")
+        # Environment override for project id
+        env_proj = os.environ.get("TK_INCIDENT_PROJECT_ID")
+        if env_proj:
+            try:
+                settings.setdefault("upload", {})["shotgun_project_id"] = int(env_proj)
+                self.logger.debug("Overriding project id from env: %s", env_proj)
+            except Exception:
+                self.logger.warning("Invalid TK_INCIDENT_PROJECT_ID: %s", env_proj)
 
-        # now register a *command*, which is normally a menu entry of some kind on a Shotgun
-        # menu (but it depends on the engine). The engine will manage this command and
-        # whenever the user requests the command, it will call out to the callback.
+        # Start bootstrap, passing logger and shotgun handle
+        self._tk_incident = self.import_module("tk_incident")
+        self._tk_incident.bootstrap.start(logger=self.logger, shotgun=self.shotgun, settings=settings)
 
-        # first, set up our callback, calling out to a method inside the app module contained
-        # in the python folder of the app
-        menu_callback = lambda: app_payload.dialog.show_dialog(self)
-
-        # now register the command with the engine
-        self.engine.register_command("Show Starter Template App...", menu_callback)
+    def destroy_app(self):
+        try:
+            if hasattr(self, "_tk_incident"):
+                self._tk_incident.bootstraop.stop()
+        except Exception:
+            self.logger.debug("Error while stopping observability bootstrap", exc_info=True)
