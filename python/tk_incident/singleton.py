@@ -1,36 +1,39 @@
-# python/tk_incident/singleton.py
-# Qt import via QtImporter
-import getpass, hashlib, os
 from sgtk.util.qt_importer import QtImporter
-
 imp = QtImporter()
 QtCore, QtGui, QtNetwork = imp.QtCore, imp.QtGui, imp.QtNetwork
 
 
 class SingletonLock(object):
-    def __init__(self, name):
+    def __init__(self, name, parent=None):
         self.name = name
+        self.parent = parent
         self._server = None
 
-    def acquire(self):
-        try:
-            server = QtNetwork.QLocalServer()
+    def acquire(self, timeout_ms=150):
+        sock = QtNetwork.QLocalSocket(self.parent)
+        sock.connectToServer(self.name)
+        if sock.waitForConnected(timeout_ms):
+            return False
+
+        server = QtNetwork.QLocalServer(self.parent)
+
+        if not server.listen(self.name):
             try:
-                server.removeServer(self.name)
+                QtNetwork.QLocalServer.removeServer(self.name)
             except Exception:
                 pass
-            ok = server.listen(self.name)
-            if ok:
-                self._server = server
-                return True
-            return False
-        except Exception:
-            return False
+            if not server.listen(self.name):
+                return False
+
+        self._server = server
+        return True
 
     def release(self):
         if self._server:
             try:
+                name = self._server.serverName()
                 self._server.close()
+                QtNetwork.QLocalServer.removeServer(name)
             except Exception:
                 pass
             self._server = None
