@@ -6,6 +6,11 @@ FPTR Toolkit (`sgtk`) Desktop app that implements a simple idea:
 
 This is an MVP built to validate the end-to-end flow, not a production-ready app!
 
+# Screenshots
+<img width="2926" height="628" alt="image" src="https://github.com/user-attachments/assets/0d1df93a-901a-415d-8ddb-f202f3a2378d" />
+<img width="1826" height="1652" alt="image" src="https://github.com/user-attachments/assets/223d2d8f-da2a-4909-b9af-53e86042182f" />
+
+
 ## What it does
 
 - Watches `tk-*.log` on the client machine
