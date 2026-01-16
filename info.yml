@@ -14,7 +14,6 @@
 configuration:
   shotgun_project_id:
     type: int
-    default_value: 190
     description: "Default ShotGrid project id for created tickets"
   ticket_entity_type:
     type: str
