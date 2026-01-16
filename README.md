@@ -45,7 +45,7 @@ settings.tk-desktop.site:
   apps:
     tk-incidentreporter:
       location: "@apps.tk-incidentreporter.location"
-      shotgun_project_id: 190
+      shotgun_project_id: 190 # Your Project ID where tickest are stored
   location: "@engines.tk-desktop.location"
 ```
 
