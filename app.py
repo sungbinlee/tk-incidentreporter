@@ -1,32 +1,30 @@
-import os
 from sgtk.platform import Application
 
 
 class ObservabilityStarterApp(Application):
     def init_app(self):
         # Collect configuration (Toolkit merges defaults + site/config)
+        project_id = self.get_setting("shotgun_project_id")
+
+        try:
+            proj = self.shotgun.find_one("Project", [["id", "is", project_id]], ["id"])
+        except Exception as e:
+            self.logger.error(f"cannot access project_id={project_id}. skip start. ({e})")
+            return
+
+        if not proj:
+            self.logger.error(f"project_id={project_id} not found or no access. skip start.")
+            return
+
         settings = {}
         keys = ["shotgun_project_id", "ticket_entity_type"]
-        for k in keys:
-            try:
-                v = self.get_setting(k)
-            except Exception as e:
-                v = None
-                self.logger.debug(f"error : {e}")
-            if v is not None and v != "":
-                if k in ("shotgun_project_id", "ticket_entity_type"):
-                    settings.setdefault("upload", {})[k] = v
+        for key in keys:
+            value = self.get_setting(key)
+            if value:
+                if key in ("shotgun_project_id", "ticket_entity_type"):
+                    settings.setdefault("upload", {})[key] = value
                 else:
-                    settings[k] = v
-
-        # Environment override for project id
-        env_proj = os.environ.get("TK_INCIDENT_PROJECT_ID")
-        if env_proj:
-            try:
-                settings.setdefault("upload", {})["shotgun_project_id"] = int(env_proj)
-                self.logger.debug("Overriding project id from env: %s", env_proj)
-            except Exception:
-                self.logger.warning("Invalid TK_INCIDENT_PROJECT_ID: %s", env_proj)
+                    settings[key] = value
 
         # Start bootstrap, passing logger and shotgun handle
         self._tk_incident = self.import_module("tk_incident")
@@ -35,6 +33,6 @@ class ObservabilityStarterApp(Application):
     def destroy_app(self):
         try:
             if hasattr(self, "_tk_incident"):
-                self._tk_incident.bootstraop.stop()
+                self._tk_incident.bootstrap.stop()
         except Exception:
             self.logger.debug("Error while stopping observability bootstrap", exc_info=True)
