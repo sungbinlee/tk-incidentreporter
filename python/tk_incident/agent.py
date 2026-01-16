@@ -56,7 +56,6 @@ class AgentController(QtCore.QObject):
         self.matcher = Matcher(self.settings)
 
     def start(self):
-        self.logger.info("AgentController.start()")
         log_dir = self.settings.get("log_dir")
         if not log_dir:
             try:
@@ -70,7 +69,6 @@ class AgentController(QtCore.QObject):
         self.worker.start()
 
     def stop(self):
-        self.logger.info("AgentController.stop()")
         # stop tail worker
         if self.worker:
             self.worker.requestInterruption()
