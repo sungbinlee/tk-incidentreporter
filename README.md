@@ -57,7 +57,7 @@ settings.tk-desktop.site:
 * Detected timestamp
 * Client User
 * Log path + matched byte offset
-* Attached log file (e.g. `tk-desktop.log`)
+* Attached log file (e.g. `tk-*.log`, `tk-desktop.log`)
 
 ## Contributing
 Any opinions or contributions are welcome!
