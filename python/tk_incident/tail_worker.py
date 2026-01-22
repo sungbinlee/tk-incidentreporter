@@ -11,7 +11,7 @@ class TailWorker(QtCore.QThread):
     Simple tail/follow worker.
     Emits payload dict: {path, line, pos, ts}
     """
-    line_detected = QtCore.Signal(dict)
+    line_detected = QtCore.Signal(object)
 
     def __init__(self, log_folder, glob_patterns=None, poll_interval=0.5, parent=None):
         super(TailWorker, self).__init__(parent)
