@@ -3,6 +3,8 @@ import time
 import threading
 from collections import defaultdict, deque
 import queue
+
+import sgtk
 from sgtk.util.qt_importer import QtImporter
 
 imp = QtImporter()
@@ -11,7 +13,6 @@ QtCore, QtGui, QtNetwork = imp.QtCore, imp.QtGui, imp.QtNetwork
 from .tail_worker import TailWorker
 from .matcher import Matcher
 from .uploader import Uploader
-from .utils import get_default_log_folder
 
 
 class AgentController(QtCore.QObject):
@@ -56,13 +57,7 @@ class AgentController(QtCore.QObject):
         self.matcher = Matcher(self.settings)
 
     def start(self):
-        log_dir = self.settings.get("log_dir")
-        if not log_dir:
-            try:
-                lf = get_default_log_folder()
-                log_dir = str(lf)
-            except Exception:
-                log_dir = str(get_default_log_folder())
+        log_dir = sgtk.LogManager().log_folder
         patterns = self.settings.get("glob_patterns", ["tk-*.log"])
         self.worker = TailWorker(log_dir, patterns)
         self.worker.line_detected.connect(self._on_line)
