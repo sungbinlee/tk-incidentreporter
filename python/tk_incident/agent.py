@@ -168,7 +168,7 @@ class AgentController(QtCore.QObject):
     # ---------------------------
     # main slot
     # ---------------------------
-    @QtCore.Slot(dict)
+    @QtCore.Slot(object)
     def _on_line(self, payload):
         try:
             matched = self.matcher.match(payload["line"])
